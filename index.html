@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Registrar Queue System</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="header">
+  <h3>NAGA COLLEGE FOUNDATION, INC.</h3>
+  <p>Registrar Queue System</p>
+</div>
+
+<hr>
+
+<form id="queueForm">
+
+<!-- TYPE -->
+<div id="typeSection">
+  <label for="type">Select Type</label>
+  <select id="type" name="type" required>
+    <option value="">Select Type</option>
+    <option value="appointment">Appointment</option>
+    <option value="evaluation">Evaluation</option>
+  </select> 
+</div>
+
+<!-- FORM -->
+<div id="formSection">
+
+  <label for="name">Full Name</label>
+  <input type="text" id="name" name="name" required>
+
+  <label for="studentId">Student ID</label>
+  <input type="text" id="studentId" name="studentId" required>
+
+  <label for="contact">Contact Number</label>
+  <input type="text" id="contact" name="contact" required>
+
+<label for="department">Department</label>
+<select id="department" name="department" required>
+
+  <option value="">Select Department</option>
+
+  <option value="COE">College of Engineering</option>
+  <option value="CCS">College of Computer Studies</option>
+  <option value="CAS">College of Arts & Sciences</option>
+  <option value="CHS">College of Health Sciences</option>
+  <option value="CTED">College of Teacher Education</option>
+  <option value="CBM">College of Business Management</option>
+  <option value="CCJE">College of Criminal Justice Education</option>
+
+</select>
+
+  <label for="transaction">Transaction</label>
+  <select id="transaction" name="transaction" required>
+    <option value="">Select Transaction</option>
+  </select>
+
+  <button type="submit">GET QUEUE NUMBER</button>
+
+</div>
+
+</form>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

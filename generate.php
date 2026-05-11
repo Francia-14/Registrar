@@ -2,7 +2,6 @@
 header('Content-Type: application/json');
 include "config.php";
 
-// CHECK CONNECTION
 if(!isset($conn)){
   echo json_encode([
     "success" => false,
@@ -11,14 +10,12 @@ if(!isset($conn)){
   exit;
 }
 
-// SAFE INPUT
 $name = $_POST['name'] ?? '';
 $studentId = $_POST['studentId'] ?? '';
 $contact = $_POST['contact'] ?? '';
 $department = $_POST['department'] ?? '';
 $transaction = $_POST['transaction'] ?? '';
 
-// VALIDATION
 if($name == "" || $studentId == "" || $contact == "" || $department == "" || $transaction == ""){
   echo json_encode([
     "success" => false,
@@ -27,33 +24,25 @@ if($name == "" || $studentId == "" || $contact == "" || $department == "" || $tr
   exit;
 }
 
-/////////////////////////////////////////////////////
-// 🔥 COUNTER ROUTING LOGIC
-/////////////////////////////////////////////////////
 
-function getCounter($department, $transaction) {
+function getCounter(string $department, string $transaction): string {
 
-  // COUNTER A1
-  if(in_array($transaction, ["Realising", "Authentication"])){
+  if(in_array($transaction, ["Authentication"])){
     return "A1";
   }
 
-  // COUNTER A2
-  if(in_array($transaction, ["Requesting", "Inquiry"])){
+  if(in_array($transaction, ["Inquiry"])){
     return "A2";
   }
 
-  // COUNTER B
   if(in_array($department, ["CCJE", "CHS", "CAS"])){
     return "B";
   }
 
-  // COUNTER C
   if(in_array($department, ["CTED", "CBM"])){
     return "C";
   }
 
-  // COUNTER D
   if(in_array($department, ["CCS", "COE"])){
     return "D";
   }
@@ -63,9 +52,6 @@ function getCounter($department, $transaction) {
 
 $counter = getCounter($department, $transaction);
 
-/////////////////////////////////////////////////////
-// 🔥 QUEUE NUMBER PER COUNTER
-/////////////////////////////////////////////////////
 
 $result = $conn->query("
   SELECT queue_number 
@@ -77,7 +63,10 @@ $result = $conn->query("
 
 if($result && $result->num_rows > 0){
   $row = $result->fetch_assoc();
-  $last = intval(substr($row['queue_number'], 3));
+
+  $parts = explode("-", $row['queue_number']);
+  $last = intval($parts[1]);
+
   $next = $last + 1;
 } else {
   $next = 1;
@@ -85,18 +74,15 @@ if($result && $result->num_rows > 0){
 
 $queue = $counter . "-" . str_pad($next, 3, "0", STR_PAD_LEFT);
 
-/////////////////////////////////////////////////////
-// 🔥 INSERT DATA
-/////////////////////////////////////////////////////
 
-$conn->query("INSERT INTO queue 
+$stmt = $conn->prepare("INSERT INTO queue 
 (name, student_id, contact, department, transaction, queue_number)
-VALUES
-('$name','$studentId','$contact','$department','$transaction','$queue')");
+VALUES (?, ?, ?, ?, ?, ?)");
 
-/////////////////////////////////////////////////////
-// 🔥 RETURN RESPONSE
-/////////////////////////////////////////////////////
+$stmt->bind_param("ssssss", $name, $studentId, $contact, $department, $transaction, $queue);
+
+$stmt->execute();
+
 
 echo json_encode([
   "success" => true,

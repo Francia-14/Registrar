@@ -15,9 +15,6 @@ const transactions = {
   ]
 };
 
-// ================================
-// SHOW TRANSACTION BASED ON TYPE
-// ================================
 document.getElementById("type").addEventListener("change", function () {
 
   const formSection = document.getElementById("formSection");
@@ -42,9 +39,6 @@ document.getElementById("type").addEventListener("change", function () {
 });
 
 
-// ================================
-// SUBMIT FORM → DATABASE
-// ================================
 document.getElementById("queueForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -67,7 +61,6 @@ document.getElementById("queueForm").addEventListener("submit", function (e) {
   formData.append("contact", contact);
   formData.append("department", department);
 
-  // 🔥 IMPORTANT: unified field for queue-system
   formData.append("service", type + " - " + transaction);
 
   fetch("generate.php", {
@@ -82,10 +75,8 @@ document.getElementById("queueForm").addEventListener("submit", function (e) {
       return;
     }
 
-    // PRINT TICKET
     printTicket(data);
 
-    // RESET FORM
     this.reset();
     document.getElementById("formSection").style.display = "none";
 
@@ -98,9 +89,6 @@ document.getElementById("queueForm").addEventListener("submit", function (e) {
 });
 
 
-// ================================
-// PRINT TICKET
-// ================================
 function printTicket(data) {
 
   const now = new Date();

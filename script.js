@@ -15,14 +15,12 @@ const transactions = {
   ]
 };
 
-// STEP 1 → TYPE SELECTED
 document.getElementById("type").addEventListener("change", function(){
 
   if(this.value){
     document.getElementById("formSection").style.display = "block";
   }
 
-  // load transactions based on type
   let transaction = document.getElementById("transaction");
   transaction.innerHTML = "<option value=''>Select Transaction</option>";
 
@@ -38,7 +36,6 @@ document.getElementById("type").addEventListener("change", function(){
 });
 
 
-// STEP 2 → SUBMIT FORM
 document.getElementById("queueForm").addEventListener("submit", function(e){
   e.preventDefault();
 
@@ -48,7 +45,7 @@ document.getElementById("queueForm").addEventListener("submit", function(e){
     method: "POST",
     body: formData
   })
-  .then(res => res.text())   // IMPORTANT: avoid JSON crash
+  .then(res => res.text())  
   .then(data => {
 
     console.log("RAW RESPONSE:", data);
@@ -82,7 +79,6 @@ document.getElementById("queueForm").addEventListener("submit", function(e){
 });
 
 
-// STEP 3 → PRINT TICKET
 function printTicket(data){
 
   const now = new Date();

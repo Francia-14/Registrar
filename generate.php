@@ -8,7 +8,6 @@ $contact = $_POST['contact'];
 $department = $_POST['department'];
 $service = $_POST['service'];
 
-// GET LAST QUEUE NUMBER
 $result = $conn->query("SELECT queue_no FROM queue ORDER BY id DESC LIMIT 1");
 
 if($result && $result->num_rows > 0){
@@ -22,7 +21,6 @@ if($result && $result->num_rows > 0){
 
 $queue_no = "R-" . str_pad($next, 3, "0", STR_PAD_LEFT);
 
-// INSERT (MATCH QUEUE-SYSTEM TABLE)
 $stmt = $conn->prepare("
 INSERT INTO queue
 (queue_no, name, student_id, department, service, status, time_created)
@@ -43,7 +41,6 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-// RESPONSE
 echo json_encode([
   "success" => true,
   "queue" => $queue_no

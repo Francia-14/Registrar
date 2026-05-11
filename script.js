@@ -15,76 +15,98 @@ const transactions = {
   ]
 };
 
-document.getElementById("type").addEventListener("change", function(){
+// ================================
+// SHOW TRANSACTION BASED ON TYPE
+// ================================
+document.getElementById("type").addEventListener("change", function () {
 
-  if(this.value){
-    document.getElementById("formSection").style.display = "block";
+  const formSection = document.getElementById("formSection");
+  const transaction = document.getElementById("transaction");
+
+  if (this.value) {
+    formSection.style.display = "block";
+  } else {
+    formSection.style.display = "none";
   }
 
-  let transaction = document.getElementById("transaction");
   transaction.innerHTML = "<option value=''>Select Transaction</option>";
 
-  if(transactions[this.value]){
-    transactions[this.value].forEach(t=>{
+  if (transactions[this.value]) {
+    transactions[this.value].forEach(t => {
       let opt = document.createElement("option");
       opt.value = t;
       opt.textContent = t;
       transaction.appendChild(opt);
     });
   }
-
 });
 
 
-document.getElementById("queueForm").addEventListener("submit", function(e){
+// ================================
+// SUBMIT FORM → DATABASE
+// ================================
+document.getElementById("queueForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  let formData = new FormData(this);
+  const type = document.getElementById("type").value;
+  const name = document.getElementById("name").value.trim();
+  const studentId = document.getElementById("studentId").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const department = document.getElementById("department").value;
+  const transaction = document.getElementById("transaction").value;
+
+  if (!type || !name || !studentId || !contact || !department || !transaction) {
+    alert("Please complete all fields");
+    return;
+  }
+
+  let formData = new FormData();
+
+  formData.append("name", name);
+  formData.append("studentId", studentId);
+  formData.append("contact", contact);
+  formData.append("department", department);
+
+  // 🔥 IMPORTANT: unified field for queue-system
+  formData.append("service", type + " - " + transaction);
 
   fetch("generate.php", {
     method: "POST",
     body: formData
   })
-  .then(res => res.text())  
+  .then(res => res.json())
   .then(data => {
 
-    console.log("RAW RESPONSE:", data);
-
-    let json;
-
-    try {
-      json = JSON.parse(data);
-    } catch (err) {
-      alert("Server returned invalid response. Check PHP.");
-      console.log("PARSE ERROR:", err);
+    if (!data.success) {
+      alert(data.error || "Error generating queue");
       return;
     }
 
-    if(!json.success){
-      alert(json.error || "Error generating queue");
-      return;
-    }
+    // PRINT TICKET
+    printTicket(data);
 
-    printTicket(json);
-
+    // RESET FORM
     this.reset();
     document.getElementById("formSection").style.display = "none";
 
   })
   .catch(err => {
-    console.log("FETCH ERROR:", err);
-    alert("Cannot connect to server (generate.php)");
+    console.log("ERROR:", err);
+    alert("Server connection failed");
   });
 
 });
 
 
-function printTicket(data){
+// ================================
+// PRINT TICKET
+// ================================
+function printTicket(data) {
 
   const now = new Date();
   const dateTime = now.toLocaleString();
 
-  let win = window.open('', '', 'width=300,height=600');
+  let win = window.open("", "", "width=300,height=600");
 
   win.document.write(`
     <html>
@@ -100,7 +122,7 @@ function printTicket(data){
         body {
           width: 57mm;
           margin: 0;
-          padding: 5px;
+          padding: 6px;
           font-family: monospace;
           text-align: center;
           font-size: 11px;
@@ -112,9 +134,9 @@ function printTicket(data){
         }
 
         .queue {
-          font-size: 26px;
+          font-size: 28px;
           font-weight: bold;
-          margin: 12px 0;
+          margin: 10px 0;
         }
 
         .line {
@@ -122,6 +144,9 @@ function printTicket(data){
           margin: 6px 0;
         }
 
+        .small {
+          font-size: 10px;
+        }
       </style>
 
     </head>
@@ -137,7 +162,11 @@ function printTicket(data){
 
       <div class="line"></div>
 
-      <div>${dateTime}</div>
+      <div class="small">${dateTime}</div>
+
+      <div class="line"></div>
+
+      <div class="small">${data.queue}</div>
 
     </body>
     </html>
@@ -150,5 +179,4 @@ function printTicket(data){
     win.print();
     win.close();
   }, 500);
-
 }
